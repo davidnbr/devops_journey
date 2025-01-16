@@ -1,0 +1,6 @@
+# General
+*.env
+*.tmp
+*.bak
+*.swp
+*.vsp
