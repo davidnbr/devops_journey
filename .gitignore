@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 # General
 *.env
 *.tmp
 *.bak
 *.swp
 *.vsp
+=======
+.venv/
+>>>>>>> 4f329d8d3bbc83a8401e86f264dfac340f246e4d
