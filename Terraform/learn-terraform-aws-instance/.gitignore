@@ -1,14 +1,3 @@
-# General
-*.env
-*.tmp
-*.bak
-*.swp
-*.vsp
-.env
-
-# Dirs
-.venv/
-
 # Local .terraform directories
 **/.terraform/*
 
