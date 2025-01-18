@@ -10,6 +10,19 @@ header {
     text-align: center;
 }
 
+img {
+    animation: fadeIn 1s ease; /* Add a fade-in animation */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0; /* Start with opacity 0 */
+    }
+    to {
+        opacity: 1; /* End with opacity 1 */
+    }
+}
+
 nav ul {
     padding: 0;
     list-style: none;
