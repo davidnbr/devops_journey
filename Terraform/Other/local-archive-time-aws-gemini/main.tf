@@ -10,6 +10,12 @@ data "archive_file" "lambda_zip" {
     output_path = "${path.module}/lambda_function.zip"
 }
 
+# Add time_sleep resource
+resource "time_sleep" "wait_30_seconds" {
+    create_duration = "30s"
+    depends_on = [aws_lambda_function.hello_world]
+}
+
 # Add lambda function resource
 resource "aws_lambda_function" "hello_world" {
     filename = "${path.module}/lambda_function.zip"

@@ -1,11 +1,11 @@
 variable "aws_shared_config_files" {
-    default = ""
+    default = ["./shared"]
 }
 
 variable "aws_profile" {
-    default = ""
+    default = "profile"
 }
 
 variable "aws_region" {
-    default = ""
+    default = "us-east-1"
 }
