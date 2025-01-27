@@ -58,7 +58,7 @@ resource "aws_subnet" "subnet_private_laravel" {
   cidr_block              = each.value
   map_public_ip_on_launch = false
 
-  availability_zone = ["us-east-1a", "us-east-1b"][index(["10.0.1.128/26", "10.0.101.192/26"], each.value)]
+  availability_zone = ["us-east-1a", "us-east-1b"][index(["10.0.1.128/26", "10.0.1.192/26"], each.value)]
 
   tags = {
     Name = "subnet_private_laravel_${each.key}"
