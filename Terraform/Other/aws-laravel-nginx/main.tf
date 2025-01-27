@@ -13,8 +13,8 @@ resource "aws_vpc" "vpc_laravel" {
   }
 }
 
-# Subnet configuration
-# Public subnet
+### Subnet configuration
+## Public subnet
 resource "aws_subnet" "subnet_public_laravel" {
   for_each   = toset(["10.0.1.1/25", "10.0.1.2/25"])
   vpc_id     = aws_vpc.vpc_laravel.id
@@ -24,7 +24,25 @@ resource "aws_subnet" "subnet_public_laravel" {
   }
 }
 
-# Private subnet
+# Internet Gateway
+resource "aws_internet_gateway" "gateway_internet_laravel" {
+  vpc_id = aws_vpc.vpc_laravel.id
+  tags = {
+    Name = "gateway_internet_laravel"
+  }
+
+}
+
+# Route Table
+resource "aws_route_table" "route_public_laravel" {
+  vpc_id = aws_vpc.vpc_laravel.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gateway_internet_laravel.id
+  }
+}
+
+## Private subnet
 resource "aws_subnet" "subnet_private_laravel" {
   for_each                = toset(["10.0.1.128/25", "10.0.1.129/25"])
   vpc_id                  = aws_vpc.vpc_laravel.id
@@ -32,5 +50,19 @@ resource "aws_subnet" "subnet_private_laravel" {
   map_public_ip_on_launch = false
   tags = {
     Name = "subnet_private_laravel_${each.key}"
+  }
+}
+
+# Route Table
+resource "aws_route_table" "route_private_laravel" {
+  for_each = toset(["10.0.1.128/25", "10.0.1.129/25"])
+  vpc_id   = aws_vpc.vpc_laravel.id
+  route {
+    cidr_block = each.value
+    gateway_id = "local"
+  }
+
+  tags = {
+    Name = "route_private_laravel_${each.key}"
   }
 }
