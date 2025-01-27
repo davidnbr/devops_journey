@@ -113,3 +113,26 @@ resource "aws_db_subnet_group" "db_subnet_group_laravel" {
   subnet_ids = [for subnet in subnet_private_laravel : subnet.id]
   depends_on = [aws_route_table_association.route_association_private_laravel]
 }
+
+# Create RDS instance
+resource "aws_db_instance" "db_instance_laravel" {
+  allocated_storage      = 20
+  storage_type           = "gp2"
+  engine                 = "mysql"
+  engine_version         = "8.0.39"
+  instance_class         = "db.t3.micro"
+  db_name                = var.db_name
+  username               = var.db_user
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group_laravel.name
+  vpc_security_group_ids = [aws_security_group.sec_grp_rds_allow_mysql.id]
+  publicly_accessible    = false
+
+  skip_final_snapshot = true
+
+  tags = {
+    Name = "db_instance_laravel"
+  }
+
+  depends_on = [aws_db_subnet_group.db_subnet_group_laravel]
+}
