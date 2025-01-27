@@ -69,3 +69,15 @@ resource "aws_instance" "ec2_laravel" {
   depends_on = [aws_security_group.sec_grp_ec2_allow_ssh_http]
 
 }
+
+# Create key pair
+# RSA key of size 4096 bits
+resource "tls_private_key" "key_rsa_4096" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "tf_key" {
+  key_name   = "ec2_key_pair"
+  public_key = tls_private_key.key_rsa_4096.public_key_openssh
+}
