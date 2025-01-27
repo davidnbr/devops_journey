@@ -8,6 +8,13 @@
 
 # Dirs
 .venv/
+.env/
+.vscode/
+
+# Secret
+*.key
+*.pem
+*_kp*
 
 # Local .terraform directories
 **/.terraform/*
