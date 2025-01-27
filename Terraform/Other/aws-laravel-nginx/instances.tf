@@ -62,6 +62,12 @@ resource "aws_instance" "ec2_laravel" {
 
   subnet_id = aws_subnet.subnet_public_laravel["10.0.1.0/26"].id
 
+  user_data = <<-EOF
+  #!/bin/bash -xe
+  apt-get update -y
+  apt-get install mysql-client -y
+  EOF
+
   tags = {
     Name = "ec2_laravel"
   }
@@ -117,7 +123,6 @@ resource "aws_db_subnet_group" "db_subnet_group_laravel" {
 # Create RDS instance
 resource "aws_db_instance" "db_instance_laravel" {
   allocated_storage      = 20
-  storage_type           = "gp2"
   engine                 = "mysql"
   engine_version         = "8.0.39"
   instance_class         = "db.t3.micro"
