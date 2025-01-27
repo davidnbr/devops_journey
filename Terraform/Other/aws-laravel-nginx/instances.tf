@@ -62,6 +62,12 @@ resource "aws_instance" "ec2_laravel" {
 
   subnet_id = aws_subnet.subnet_public_laravel["10.0.1.0/26"].id
 
+  user_data = <<-EOF
+  #!/bin/bash -xe
+  apt-get update -y
+  apt-get install mysql-client -y
+  EOF
+
   tags = {
     Name = "ec2_laravel"
   }
@@ -87,4 +93,51 @@ resource "local_file" "tf_key" {
 resource "aws_key_pair" "tf_key" {
   key_name   = "ec2_key_pair"
   public_key = tls_private_key.key_rsa_4096.public_key_openssh
+}
+
+### RDS instances
+# Create security group
+resource "aws_security_group" "sec_grp_rds_allow_mysql" {
+  name        = "sec_grp_rds_allow_mysql"
+  description = "Allow MySQL inbound traffic"
+  vpc_id      = aws_vpc.vpc_laravel.id
+
+  # MySQL port
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = [aws_security_group.sec_grp_ec2_allow_ssh_http.id]
+    # From
+    security_groups = [aws_security_group.sec_grp_ec2_allow_ssh_http.id]
+  }
+}
+
+# Create subnet RDS group
+resource "aws_db_subnet_group" "db_subnet_group_laravel" {
+  name       = "db_subnet_group_laravel"
+  subnet_ids = [for subnet in subnet_private_laravel : subnet.id]
+  depends_on = [aws_route_table_association.route_association_private_laravel]
+}
+
+# Create RDS instance
+resource "aws_db_instance" "db_instance_laravel" {
+  allocated_storage      = 20
+  engine                 = "mysql"
+  engine_version         = "8.0.39"
+  instance_class         = "db.t3.micro"
+  db_name                = var.db_name
+  username               = var.db_user
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group_laravel.name
+  vpc_security_group_ids = [aws_security_group.sec_grp_rds_allow_mysql.id]
+  publicly_accessible    = false
+
+  skip_final_snapshot = true
+
+  tags = {
+    Name = "db_instance_laravel"
+  }
+
+  depends_on = [aws_db_subnet_group.db_subnet_group_laravel]
 }
