@@ -104,10 +104,9 @@ resource "aws_security_group" "sec_grp_rds_allow_mysql" {
 
   # MySQL port
   ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = [aws_security_group.sec_grp_ec2_allow_ssh_http.id]
+    from_port = 3306
+    to_port   = 3306
+    protocol  = "tcp"
     # From
     security_groups = [aws_security_group.sec_grp_ec2_allow_ssh_http.id]
   }
@@ -116,7 +115,7 @@ resource "aws_security_group" "sec_grp_rds_allow_mysql" {
 # Create subnet RDS group
 resource "aws_db_subnet_group" "db_subnet_group_laravel" {
   name       = "db_subnet_group_laravel"
-  subnet_ids = [for subnet in subnet_private_laravel : subnet.id]
+  subnet_ids = [for subnet in aws_subnet.subnet_private_laravel : subnet.id]
   depends_on = [aws_route_table_association.route_association_private_laravel]
 }
 
