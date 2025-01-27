@@ -88,3 +88,28 @@ resource "aws_key_pair" "tf_key" {
   key_name   = "ec2_key_pair"
   public_key = tls_private_key.key_rsa_4096.public_key_openssh
 }
+
+### RDS instances
+# Create security group
+resource "aws_security_group" "sec_grp_rds_allow_mysql" {
+  name        = "sec_grp_rds_allow_mysql"
+  description = "Allow MySQL inbound traffic"
+  vpc_id      = aws_vpc.vpc_laravel.id
+
+  # MySQL port
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = [aws_security_group.sec_grp_ec2_allow_ssh_http.id]
+    # From
+    security_groups = [aws_security_group.sec_grp_ec2_allow_ssh_http.id]
+  }
+}
+
+# Create subnet RDS group
+resource "aws_db_subnet_group" "db_subnet_group_laravel" {
+  name       = "db_subnet_group_laravel"
+  subnet_ids = [for subnet in subnet_private_laravel : subnet.id]
+  depends_on = [aws_route_table_association.route_association_private_laravel]
+}
