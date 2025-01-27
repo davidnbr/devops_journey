@@ -1,8 +1,9 @@
+### Provider configuration
 provider "aws" {
   region = "us-east-1"
 }
 
-# VPC configuration
+### VPC configuration
 resource "aws_vpc" "vpc_laravel" {
   cidr_block           = "10.0.1.0/24"
   instance_tenancy     = "default"
