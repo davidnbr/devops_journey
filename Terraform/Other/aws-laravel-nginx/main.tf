@@ -57,6 +57,9 @@ resource "aws_subnet" "subnet_private_laravel" {
   vpc_id                  = aws_vpc.vpc_laravel.id
   cidr_block              = each.value
   map_public_ip_on_launch = false
+
+  availability_zone = ["us-east-1a", "us-east-1b"][index(["10.0.100.0/24", "10.0.101.0/24"], each.value)]
+
   tags = {
     Name = "subnet_private_laravel_${each.key}"
   }
@@ -76,5 +79,5 @@ resource "aws_route_table" "route_private_laravel" {
 resource "aws_route_table_association" "route_association_private_laravel" {
   for_each       = aws_subnet.subnet_private_laravel
   subnet_id      = each.value.id
-  route_table_id = aws_route_table.route_private_laravel.id
+  route_table_id = aws_route_table.route_private_laravel[each.key].id
 }

@@ -77,6 +77,13 @@ resource "tls_private_key" "key_rsa_4096" {
   rsa_bits  = 4096
 }
 
+# Store private key in a file
+resource "local_file" "tf_key" {
+  content         = tls_private_key.key_rsa_4096.private_key_pem
+  filename        = "${path.module}/ec2_key_pair.pem"
+  file_permission = 0400
+}
+
 resource "aws_key_pair" "tf_key" {
   key_name   = "ec2_key_pair"
   public_key = tls_private_key.key_rsa_4096.public_key_openssh
