@@ -17,7 +17,7 @@ resource "aws_vpc" "vpc_laravel" {
 ### Subnet configuration
 ## Public subnet
 resource "aws_subnet" "subnet_public_laravel" {
-  for_each   = toset(["10.0.1.1/25", "10.0.1.2/25"])
+  for_each   = toset(["10.0.1.0/26", "10.0.1.64/26"])
   vpc_id     = aws_vpc.vpc_laravel.id
   cidr_block = each.value
   tags = {
@@ -53,7 +53,7 @@ resource "aws_route_table_association" "route_association_public_laravel" {
 
 ## Private subnet
 resource "aws_subnet" "subnet_private_laravel" {
-  for_each                = toset(["10.0.1.128/25", "10.0.1.129/25"])
+  for_each                = toset(["10.0.1.128/26", "10.0.1.191/26"])
   vpc_id                  = aws_vpc.vpc_laravel.id
   cidr_block              = each.value
   map_public_ip_on_launch = false
