@@ -53,7 +53,7 @@ resource "aws_route_table_association" "route_association_public_laravel" {
 
 ## Private subnet
 resource "aws_subnet" "subnet_private_laravel" {
-  for_each                = toset(["10.0.1.128/26", "10.0.1.191/26"])
+  for_each                = toset(["10.0.1.128/26", "10.0.1.192/26"])
   vpc_id                  = aws_vpc.vpc_laravel.id
   cidr_block              = each.value
   map_public_ip_on_launch = false
@@ -64,14 +64,17 @@ resource "aws_subnet" "subnet_private_laravel" {
 
 # Route Table
 resource "aws_route_table" "route_private_laravel" {
-  for_each = toset(["10.0.1.128/25", "10.0.1.129/25"])
+  for_each = toset(["10.0.1.128/26", "10.0.1.192/26"])
   vpc_id   = aws_vpc.vpc_laravel.id
-  route {
-    cidr_block = each.value
-    gateway_id = "local"
-  }
 
   tags = {
     Name = "route_private_laravel_${each.key}"
   }
+}
+
+# Associate route table
+resource "aws_route_table_association" "route_association_private_laravel" {
+  for_each       = aws_subnet.subnet_private_laravel
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.route_private_laravel.id
 }
