@@ -137,30 +137,30 @@ resource "aws_db_instance" "db_instance_nginx_training" {
   }
 }
 
-### Ansible resources
-# Provision EC2 instance
-resource "ansible_host" "ansible_host_nginx_training" {
-  name   = aws_instance.ec2_ssh_server.public_ip
-  groups = ["nginx_training"]
-
-  variables = {
-    ansible_user                 = "ubuntu"
-    ansible_ssh_private_key_file = "${path.module}/ec2_key_pair.pem"
-    ansible_python_interpreter   = "/usr/bin/python3"
-  }
-}
-
-# Create playbook resource
-resource "ansible_playbook" "playbook_nginx_training" {
-  playbook   = "${path.module}/ansible/playbook.yml"
-  groups     = ["nginx_training"]
-  name       = aws_instance.ec2_ssh_server.public_ip
-  replayable = true
-
-  extra_vars = {
-    ansible_user                 = "ubuntu"
-    ansible_ssh_private_key_file = "${path.module}/ec2_key_pair.pem"
-    ansible_python_interpreter   = "/usr/bin/python3"
-  }
-}
+#### Ansible resources
+## Provision EC2 instance
+#resource "ansible_host" "ansible_host_nginx_training" {
+#  name   = aws_instance.ec2_ssh_server.public_ip
+#  groups = ["nginx_training"]
+#
+#  variables = {
+#    ansible_user                 = "ubuntu"
+#    ansible_ssh_private_key_file = "${path.module}/ec2_key_pair.pem"
+#    ansible_python_interpreter   = "/usr/bin/python3"
+#  }
+#}
+#
+## Create playbook resource
+#resource "ansible_playbook" "playbook_nginx_training" {
+#  playbook   = "${path.module}/ansible/playbook.yml"
+#  groups     = ["nginx_training"]
+#  name       = aws_instance.ec2_ssh_server.public_ip
+#  replayable = true
+#
+#  extra_vars = {
+#    ansible_user                 = "ubuntu"
+#    ansible_ssh_private_key_file = "${path.module}/ec2_key_pair.pem"
+#    ansible_python_interpreter   = "/usr/bin/python3"
+#  }
+#}
 
