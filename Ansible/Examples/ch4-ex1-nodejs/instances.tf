@@ -64,14 +64,8 @@ resource "aws_instance" "ec2_ssh_server" {
 
   subnet_id = aws_subnet.public_subnet_nginx_training["10.0.1.0/24"].id
 
-  user_data = <<-EOF
-  #!/bin/bash -xe
-  apt-get update -y
-  apt-get install mysql-client -y
-  EOF
-
   tags = {
-    Name = "SSH-Server"
+    Name = "NodeJS-server"
   }
 }
 
