@@ -32,3 +32,14 @@ output "db_port" {
   description = "Database port"
   value       = aws_db_instance.db_instance_nginx_training.port
 }
+
+resource "local_file" "hosts" {
+  content  = <<-EOF
+  [web]
+  ${aws_eip.ec2_nginx_eip.public_dns}
+  
+  [db]
+  ${aws_db_instance.db_instance_nginx_training.address}
+  EOF
+  filename = "${path.module}/ansible/hosts.ini"
+}
