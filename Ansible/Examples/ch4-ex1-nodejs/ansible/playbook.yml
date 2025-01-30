@@ -1,7 +1,7 @@
 # Example for installing and starting simple Node.js application
 ---
 - name: Install and start Node.js application
-  hosts: all
+  hosts: web
   become: true
 
   vars:

@@ -36,26 +36,27 @@ resource "aws_security_group" "allow_ssh_http_ec2" {
   }
 }
 
-# Retrieve most recent instance image
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
+## Retrieve most recent instance image
+#data "aws_ami" "ubuntu" {
+#  most_recent = true
+#
+#  filter {
+#    name   = "name"
+#    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+#  }
+#
+#  filter {
+#    name   = "virtualization-type"
+#    values = ["hvm"]
+#  }
+#
+#  owners = ["099720109477"] # Canonical
+#}
 
 # Create instance
 resource "aws_instance" "ec2_ssh_server" {
-  ami           = data.aws_ami.ubuntu.id
+  #ami           = data.aws_ami.ubuntu.id
+  ami           = "ami-0c614dee691cbbf37"
   instance_type = "t3.micro"
 
   key_name                    = aws_key_pair.tf_key.key_name
