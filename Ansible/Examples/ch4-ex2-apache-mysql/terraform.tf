@@ -2,7 +2,7 @@ terraform {
   cloud {
     organization = "Devops_Journey_DB"
     workspaces {
-      name = "ansible-ch4-ex1-nodejs"
+      name = "ansible-ch4-ex2-nodejs"
     }
   }
 
