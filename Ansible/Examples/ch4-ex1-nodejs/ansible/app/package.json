@@ -1,0 +1,9 @@
+{
+    "name": "examplenodeapp",
+    "description": "Example Node.js app",
+    "author": "Jeff Geerling",
+    "dependencies": {
+        "express": "4.x"
+    },
+    "engine": "node >= 0.10.6"
+}
