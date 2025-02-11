@@ -1,0 +1,40 @@
+- name: Example playbook
+  hosts: all
+  become: true
+
+  tasks:
+   - name: Ensure chrony (for time synchronization) is installed.
+     ansible.builtin.apt:
+      name: chrony
+      state: present
+
+   - name: Ensure chrony is running.
+     ansible.builtin.service:
+      name: chronyd
+      state: started
+      enabled: true
+
+   - name: Install Django dependencies.
+     ansible.builtin.apt:
+      name:
+       - python3
+       - python3-pip
+       - python3-venv
+       - python3-dev
+       - libpq-dev
+       - postgresql-client
+      state: present
+
+   - name: Install Django package.
+     ansible.builtin.pip:
+      name: django
+      state: present
+
+   - name: Ensure the Django package is installed.
+     ansible.builtin.command: python3 -m django --version
+     register: django_version
+     changed_when: django_version.rc != 0
+
+   - name: Display the Django version.
+     ansible.builtin.debug:
+      msg: "{{ django_version.stdout }}"

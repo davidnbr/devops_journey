@@ -1,0 +1,239 @@
+version: 2.1
+orbs:
+  terraform: circleci/terraform@3.5.0
+  ansible-trusted: trustedshops-public/ansible@3.0.2
+executors:
+  ansible-executor-machine:
+    machine:
+      image: ubuntu-2204:2024.08.1
+      resource_class: medium
+  ansible-python:
+    docker:
+      - image: circleci/python:3.10
+  ansible-executor:
+    docker:
+      - image: geerlingguy/docker-ubuntu2404-ansible:latest
+  ansible-official:
+    docker:
+      - image: ansible/ansible:ubuntu1604py3
+
+jobs:
+  terraform-check:
+    working_directory: /tmp/project
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - run:
+          name: Check format
+          command: |
+            terraform fmt -check
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  terraform-validate:
+    working_directory: /tmp/project
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Validate
+          command: |
+            cd aws-ansible-ec2-nginx
+            terraform init -input=false
+            terraform validate
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  terraform-init-plan:
+    working_directory: ~/project/aws-ansible-ec2-nginx
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout:
+          path: ~/project
+      - run:
+          name: Terraform Init
+          command: |
+            pwd
+            terraform init -input=false
+            terraform plan
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  terraform-apply:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Terraform Apply
+          command: |
+            cd aws-ansible-ec2-nginx
+            terraform apply -auto-approve
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  terraform-destroy-plan:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Terraform Create Destroy Plan
+          command: |
+            cd aws-ansible-ec2-nginx
+            terraform plan -destroy
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  destroy:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Terraform Destroy
+          command: |
+            cd aws-ansible-ec2-nginx
+            terraform apply -auto-approve tfdestroyplan
+
+  lint:
+    description: Run ansible lint
+    executor: << parameters.executor >>
+    parameters:
+      executor:
+        description: Specify executor to use
+        default: ansible-executor
+        type: string
+      config:
+        description: Specify path to a custom ansible lint config
+        default: ""
+        type: string
+      directory:
+        default: ~/
+        description: Specify directory to search for ansible yml files
+        type: string
+    steps:
+      - checkout
+      - when:
+          condition:
+            equal:
+              - << parameters.executor >>
+              - ansible-executor-machine
+          steps:
+            - run:
+                name: Provision System with Python 3, Git and Ansible
+                command: |
+                  apt-get update && apt-get upgrade -y
+                  apt install software-properties-common
+                  sudo add-apt-repository ppa:deadsnakes/ppa
+                  sudo apt update
+                  sudo apt install -y python3.10 python3.10-venv python3.10-dev
+                  sudo ln -sf /usr/bin/python3.10 /usr/bin/python3
+                  sudo ln -sf /usr/bin/python3.10-config /usr/bin/python3-config
+                  sudo -H pip3 install --upgrade pip
+                  apt-get install -y git
+                  export DEBIAN_FRONTEND=noninteractive
+                  apt-get install -y software-properties-common
+                  apt-add-repository --yes --update ppa:ansible/ansible
+                  apt-get install python3-pip ansible -y
+
+      - run:
+          name: Install Ansible Galaxy roles
+          command: ansible-galaxy install -r <<parameters.directory>>/requirements.yml
+      - run:
+          name: Install ansible-lint
+          command: |
+            pip install ansible-lint --ignore-installed
+      - run:
+          name: Check ansible lint version
+          command: ansible-lint --version
+      - when:
+          condition: << parameters.config >>
+          steps:
+            - run:
+                name: Run ansible lint
+                command: find <<parameters.directory>> -type f -name '*.yml' | xargs ansible-lint -c <<parameters.config>>
+      - unless:
+          condition: << parameters.config >>
+          steps:
+            - run:
+                name: Run ansible lint
+                command: find <<parameters.directory>> -type f -name '*.yml' | xargs ansible-lint
+
+  add-host:
+    description: Add known hosts
+    docker:
+      - image: ansible/ansible:ubuntu1604py3
+    steps:
+      - attach_workspace:
+          at: .
+      - add_ssh_keys:
+          fingerprints:
+            - "$(cat ./aws-ansible-ec2-nginx/.ssh/fingerprint)"
+
+workflows:
+  tf-check-apply-destroy:
+    jobs:
+      - terraform-check
+      - terraform-validate:
+          requires:
+            - terraform-check
+      - terraform-init-plan:
+          requires:
+            - terraform-validate
+      - hold-apply:
+          type: approval
+          requires:
+            - terraform-init-plan
+      - terraform-apply:
+          requires:
+            - hold-apply
+      - terraform-destroy-plan:
+          requires:
+            - terraform-apply
+      - hold-destroy:
+          type: approval
+          requires:
+            - terraform-destroy-plan
+      - destroy:
+          requires:
+            - hold-destroy
+      #ansible-lint:
+      #jobs:
+      - lint:
+          directory: ./aws-ansible-ec2-nginx/ansible
+      - hold-apply-ansible:
+          type: approval
+          requires:
+            - lint
+      - ansible-trusted/provision:
+          executor: ansible-official
+          pre-steps:
+            - add_ssh_keys:
+                fingerprints:
+                  - "$(cat ./aws-ansible-ec2-nginx/.ssh/fingerprint)"
+          name: playbook-syntax
+          attach_workspace: true
+          workspace_root: /aws-ansible-ec2-nginx
+          ansible_version: "10.7.0"
+          playbook: "/home/circleci/project/aws-ansible-ec2-nginx/ansible/playbook.yml"
+          check: true
+          inventory: "/home/circleci/project/aws-ansible-ec2-nginx/ansible/hosts.ini"
+          install_roles: true
+          roles_requirements_file: /home/circleci/project/aws-ansible-ec2-nginx/ansible/requirements.yml
+          requires:
+            - lint:
+                - success
+            - terraform-apply

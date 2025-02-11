@@ -1,0 +1,36 @@
+---
+- name: Implements OS Hardening for Linux based on DevSec Baselines
+  hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Update all packages
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+        force: true
+      become: true
+
+    - name: Install auditd
+      ansible.builtin.apt:
+        name: auditd
+        state: present
+      become: true
+
+    - name: Mount flag state
+      ansible.builtin.command:
+        cmd: chmod g+s /bin/umount /bin/mount
+      become: true
+      changed_when: true
+
+  roles:
+    - role: devsec.hardening.os_hardening
+      become: true
+      tags: os_hardening
+
+    - role: devsec.hardening.ssh_hardening
+      become: true
+      tags: ssh_hardening
+      vars:
+        network_ipv6_enable: false
+        ssh_server_ports: ['2200']
