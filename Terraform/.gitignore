@@ -56,7 +56,7 @@ terraform.rc
 # Devenv
 .devenv/
 .devenv.nix
-.devenv.nix.lock
+.devenv.*
 .direnv/
 .envrc
 .envrc*

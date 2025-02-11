@@ -32,3 +32,12 @@ override.tf.json
 .terraformrc
 terraform.rc
 terraform
+
+# Devenv
+.devenv/
+.devenv.*
+.devenv.flake.*
+.direnv/
+.envrc
+.envrc*
+.pre-commit-config.yaml

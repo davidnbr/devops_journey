@@ -8,8 +8,6 @@
     mdsh.enable = true;
     # lint GitHub Actions workflows
     actionlint.enable = true;
-    # lint Ansible
-    ansible-lint.enable = true;
     # lint Terraform
     tflint.enable = true;
   };
