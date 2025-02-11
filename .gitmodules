@@ -1,6 +1,0 @@
-[submodule "Terraform/learn-terraform-versions"]
-	path = Terraform/learn-terraform-versions
-	url = https://github.com/hashicorp-education/learn-terraform-versions
-[submodule "Terraform/learn-terraform-provider-versioning"]
-	path = Terraform/learn-terraform-provider-versioning
-	url = https://github.com/hashicorp-education/learn-terraform-provider-versioning
