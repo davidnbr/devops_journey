@@ -52,3 +52,12 @@ override.tf.json
 # example: *tfplan*
 .terraformrc
 terraform.rc
+
+# Devenv
+.devenv/
+.devenv.nix
+.devenv.nix.lock
+.direnv/
+.envrc
+.envrc*
+.pre-commit-config.yaml
