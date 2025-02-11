@@ -23,9 +23,6 @@
 
 
     # Languages used
-    # Ansible
-    languages.ansible.enable = true;
-
     # Terraform
     languages.terraform = {
       enable = true;
