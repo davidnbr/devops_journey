@@ -1,0 +1,57 @@
+# Directories
+.devenv
+.direnv
+.vscode
+.devenv/
+.direnv/
+.vscode/
+...*
+.devenv.*
+devenv.*
+
+.envrc
+.env
+
+id_*
+
+
+# Misc
+.DS_Store
+LICENSE.md
+README.md
+
+# Binaries
+.terraform/
+*.exe
+*.tfstate
+*.backup
+*.bak
+*.info
+
+# Credentials
+*account.json
+sshkey*
+privkey*
+pubkey*
+id_rsa*
+.git/
+.github/
+.vscode/
+doc/
+.editorconfig
+.gitignore
+
+# Terraform
+**.terraform/
+**.json
+*.json
+
+# Sensitive
+**policy_documents/
+**trust_document/
+
+# logs
+terraform.log
+
+# Build output folder
+dist/**
