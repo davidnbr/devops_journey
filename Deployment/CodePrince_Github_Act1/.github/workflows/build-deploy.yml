@@ -36,7 +36,7 @@ jobs:
       - name: Get actions
         uses: actions/checkout@v3
       - name: Deploying to heroku
-        uses: akhileshns/heroku-deploy@v3.13.15 # This is the action
+        uses: akhileshns/heroku-deploy@v3.14.15 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: ${{secrets.APP_NAME}}#"YOUR APP's NAME" #Must be unique in Heroku
