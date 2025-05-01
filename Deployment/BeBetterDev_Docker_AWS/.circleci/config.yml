@@ -2,7 +2,7 @@
 # Stacks detected: deps:python:Deployment/BeBetterDev_Docker_AWS
 version: 2.1
 orbs:
-  python: circleci/python@2
+  python: circleci/python@2.2.0
 jobs:
   test-python:
     # Install dependencies and run tests
