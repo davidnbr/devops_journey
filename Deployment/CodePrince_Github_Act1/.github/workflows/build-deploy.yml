@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Push repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 <<<<<<< HEAD
       - name: Print hello
         run: echo "hello world"
@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Get actions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Deploying to heroku
         uses: akhileshns/heroku-deploy@v3.13.15 # This is the action
         with:
